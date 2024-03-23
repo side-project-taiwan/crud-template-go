@@ -1,9 +1,8 @@
 package service
 
 import (
-	"sample/internal/repository"
-
 	"sample/internal/model"
+	"sample/internal/repository"
 
 	"github.com/jmoiron/sqlx"
 )
