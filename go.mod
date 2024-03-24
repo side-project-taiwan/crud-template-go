@@ -1,10 +1,12 @@
 module sample
 
-go 1.19
+go 1.21
+
+toolchain go1.22.1
 
 require github.com/gofiber/fiber/v2 v2.49.0
 
-require github.com/joho/godotenv v1.5.1 // indirect
+require github.com/joho/godotenv v1.5.1
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect

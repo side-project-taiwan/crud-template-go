@@ -9,13 +9,13 @@ import (
 )
 
 type Controller struct {
-	S *service.Service
+	_service *service.Service
 }
 
 func NewController(db *sqlx.DB) *Controller {
 
 	return &Controller{
-		S: service.NewService(db),
+		_service: service.NewService(db),
 	}
 }
 
@@ -26,7 +26,7 @@ func (ctr *Controller) Singup(c *fiber.Ctx) error {
 		return err
 	}
 
-	err := ctr.S.SignupService(req)
+	err := ctr._service.SignupService(req)
 	if err != nil {
 		return err
 	}
@@ -40,5 +40,5 @@ func (ctr *Controller) Singup(c *fiber.Ctx) error {
 }
 
 func (ctr *Controller) Insert(c *fiber.Ctx) error {
-	return ctr.S.InsertService()
+	return ctr._service.InsertService()
 }

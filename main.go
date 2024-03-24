@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 	"sample/internal/config"
-	"sample/internal/http"
+	"sample/internal/controller"
+
 	"sample/internal/util"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,7 +23,9 @@ func main() {
 	}
 
 	f := fiber.New()
-	api := http.NewAPI(_config, f, db)
+	//api := http.NewAPI(_config, f, db)
 
-	log.Fatal(api.App.Listen(_config.PORT))
+	api2 := controller.NewStockController(_config, f, db)
+
+	log.Fatal(api2.App.Listen(_config.PORT))
 }

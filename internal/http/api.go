@@ -11,8 +11,8 @@ import (
 )
 
 type API struct {
-	App *fiber.App
-	C   *controller.Controller
+	App         *fiber.App
+	_controller *controller.Controller
 }
 
 func NewAPI(cfg *config.Config, app *fiber.App, db *sqlx.DB) *API {
@@ -24,7 +24,7 @@ func NewAPI(cfg *config.Config, app *fiber.App, db *sqlx.DB) *API {
 	api.App.Use(recover.New())
 	api.setupRouter()
 
-	api.C = controller.NewController(db)
+	api._controller = controller.NewController(db)
 
 	return api
 }
@@ -36,7 +36,7 @@ func (api *API) setupRouter() {
 	})
 
 	api.App.Post("/signup", func(c *fiber.Ctx) error {
-		return api.C.Singup(c)
+		return api._controller.Singup(c)
 	})
 
 	api.App.Post("/signin", func(c *fiber.Ctx) error {
@@ -44,7 +44,7 @@ func (api *API) setupRouter() {
 	})
 
 	api.App.Get("/insert", func(c *fiber.Ctx) error {
-		return api.C.Insert(c)
+		return api._controller.Insert(c)
 	})
 
 }
