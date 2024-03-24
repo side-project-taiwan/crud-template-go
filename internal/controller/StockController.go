@@ -45,6 +45,8 @@ func (sc *StockController) setupRoutes() {
 
 	sc.App.Get("/getStockMarketOpeningAndClosingDates", sc.GetStockMarketOpeningAndClosingDates)
 
+	sc.App.Get("/GetTheLatestOpeningDate", sc.GetTheLatestOpeningDate)
+
 	sc.App.Post("/signup", sc.Signup)
 
 	sc.App.Get("/insert", sc.Insert)
@@ -71,6 +73,25 @@ func (sc *StockController) Signup(ctxStruct *fiber.Ctx) error {
 
 func (sc *StockController) Insert(c *fiber.Ctx) error {
 	return sc.Service.InsertService()
+}
+
+func (sc *StockController) GetTheLatestOpeningDate(ctx *fiber.Ctx) error {
+	util.PrintLog("This is a GetStockMarketOpeningAndClosingDates log", true)
+
+	dates, err := sc.StocksService.GetTheLatestOpeningDate()
+	if err != nil {
+		return err
+	}
+
+	// 构造 JSON 响应
+	response := struct {
+		Dates string `json:"dates"`
+	}{
+		Dates: dates,
+	}
+
+	// 返回 JSON 响应
+	return ctx.JSON(response)
 }
 
 func (sc *StockController) GetStockMarketOpeningAndClosingDates(ctx *fiber.Ctx) error {
