@@ -4,7 +4,6 @@ import (
 	"log"
 	"sample/internal/config"
 	"sample/internal/controller"
-
 	"sample/internal/util"
 
 	"github.com/gofiber/fiber/v2"
