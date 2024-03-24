@@ -4,6 +4,7 @@ import (
 	"sample/internal/config"
 	"sample/internal/model"
 	"sample/internal/service"
+	"sample/internal/util"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -34,7 +35,6 @@ func InitializeController(cfg *config.Config, app *fiber.App, db *sqlx.DB) *Stoc
 }
 
 func (sc *StockController) setupRoutes() {
-	// 设置路由处理程序
 	sc.App.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World! indextest___23423131")
 	})
@@ -43,15 +43,17 @@ func (sc *StockController) setupRoutes() {
 		return c.SendString("test signin success")
 	})
 
+	sc.App.Get("/getStockMarketOpeningAndClosingDates", sc.GetStockMarketOpeningAndClosingDates)
+
 	sc.App.Post("/signup", sc.Signup)
 
 	sc.App.Get("/insert", sc.Insert)
 }
 
-func (sc *StockController) Signup(c *fiber.Ctx) error {
+func (sc *StockController) Signup(ctxStruct *fiber.Ctx) error {
 	// 处理注册请求
 	req := new(model.SignupRequest)
-	if err := c.BodyParser(req); err != nil {
+	if err := ctxStruct.BodyParser(req); err != nil {
 		return err
 	}
 
@@ -64,9 +66,28 @@ func (sc *StockController) Signup(c *fiber.Ctx) error {
 		Email: req.Email,
 		Name:  req.Name,
 	}
-	return c.JSON(res)
+	return ctxStruct.JSON(res)
 }
 
 func (sc *StockController) Insert(c *fiber.Ctx) error {
 	return sc.Service.InsertService()
+}
+
+func (sc *StockController) GetStockMarketOpeningAndClosingDates(ctx *fiber.Ctx) error {
+	util.PrintLog("This is a GetStockMarketOpeningAndClosingDates log", true)
+
+	dates, err := sc.StocksService.GetStockMarketOpeningAndClosingDates(true)
+	if err != nil {
+		return err
+	}
+
+	// 构造 JSON 响应
+	response := struct {
+		Dates []string `json:"dates"`
+	}{
+		Dates: dates,
+	}
+
+	// 返回 JSON 响应
+	return ctx.JSON(response)
 }

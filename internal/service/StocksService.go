@@ -20,12 +20,10 @@ func InitStocksService(db *sqlx.DB) *StocksService {
 	}
 }
 
-type HolidayScheduleResponse struct {
-	Data [][]string `json:"data"`
-}
-
-// 获取股市开盘和收盘日期
 func (s *StocksService) GetStockMarketOpeningAndClosingDates(requestAllData bool) ([]string, error) {
+	type HolidayScheduleResponse struct {
+		Data [][]string `json:"data"`
+	}
 	apiURL := fmt.Sprintf("https://www.twse.com.tw/rwd/zh/holidaySchedule/holidaySchedule?response=json&_=%d", time.Now().Unix())
 
 	response, err := http.Get(apiURL)
