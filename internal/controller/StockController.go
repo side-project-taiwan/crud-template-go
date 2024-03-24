@@ -12,16 +12,18 @@ import (
 )
 
 type StockController struct {
-	App     *fiber.App
-	Service *service.Service
+	App           *fiber.App
+	Service       *service.Service
+	StocksService *service.StocksService
 }
 
-func NewStockController(cfg *config.Config, app *fiber.App, db *sqlx.DB) *StockController {
+func InitializeController(cfg *config.Config, app *fiber.App, db *sqlx.DB) *StockController {
 
 	// 初始化 StockController，并添加 Fiber 中间件
 	sc := &StockController{
-		App:     app,
-		Service: service.NewService(db),
+		App:           app,
+		Service:       service.NewService(db),
+		StocksService: service.InitStocksService(db),
 	}
 
 	sc.App.Use(logger.New())
@@ -42,9 +44,6 @@ func (sc *StockController) setupRoutes() {
 	})
 
 	sc.App.Post("/signup", sc.Signup)
-	sc.App.Post("/signin", func(c *fiber.Ctx) error {
-		return c.SendString("test signin success")
-	})
 
 	sc.App.Get("/insert", sc.Insert)
 }
