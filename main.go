@@ -24,7 +24,7 @@ func main() {
 	f := fiber.New()
 	//api := http.NewAPI(_config, f, db)
 
-	api2 := controller.NewStockController(_config, f, db)
+	api2 := controller.InitializeController(_config, f, db)
 
 	log.Fatal(api2.App.Listen(_config.PORT))
 }
