@@ -3,5 +3,9 @@
 1. fill .env
 2. go run cmd/main.go
 
-# 表示更新操作尝试获取最新的包版本
-go get -u package_name
+
+# golang air
+# You can initialize the .air.toml configuration file to the current directory with the default settings running the following command.
+- air init
+# The simplest usage is run
+- air -c .air.toml

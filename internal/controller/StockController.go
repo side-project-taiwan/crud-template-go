@@ -36,7 +36,7 @@ func InitializeController(cfg *config.Config, app *fiber.App, db *sqlx.DB) *Stoc
 
 func (sc *StockController) setupRoutes() {
 	sc.App.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World! indextest___23423131")
+		return c.SendString("Hello, World! indextest 20240325")
 	})
 
 	sc.App.Get("/getSignin", func(c *fiber.Ctx) error {

@@ -1,9 +1,11 @@
-FROM golang:alpine
+# Choose whatever you want, version >= 1.16
+FROM golang:1.22-alpine
 
 WORKDIR /app
 
-COPY . .
-#整理和清理 Go 專案模組依賴
-RUN go mod tidy 
+RUN go install github.com/cosmtrek/air@latest
 
-CMD ["go","run","."]
+COPY go.mod go.sum ./
+RUN go mod download
+
+CMD ["air", "-c", ".air.toml"]

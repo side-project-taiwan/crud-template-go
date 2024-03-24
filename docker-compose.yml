@@ -1,14 +1,12 @@
-version: '3'
-
+version: "3.8"
 services:
-  db:
-    image: mysql
-    container_name: temp-clean
-    network_mode: host
-    environment:
-      - MYSQL_ROOT_PASSWORD=12345
-      - MYSQL_DATABASE=test
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "3307:3306"
-    restart: always
-
+      - 8083:8083
+    image: golang_image
+    container_name: golangContainer
+    volumes:
+      - ./:/app

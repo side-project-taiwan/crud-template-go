@@ -50,7 +50,6 @@ func (s *StocksService) GetStockMarketOpeningAndClosingDates(requestAllData bool
 	return dates, nil
 }
 
-// GetTheLatestOpeningDate 返回最新的开盘日期
 func (s *StocksService) GetTheLatestOpeningDate() (string, error) {
 	responseClosingDates, err := s.GetStockMarketOpeningAndClosingDates(false)
 	if err != nil {
