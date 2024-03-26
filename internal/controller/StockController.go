@@ -2,125 +2,69 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
+	"net/http"
+
 	"sample/internal/config"
 	"sample/internal/model"
 	"sample/internal/service"
 	"sample/internal/util"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
 
 type StockController struct {
-	App           *fiber.App
-	Service       *service.Service
-	StocksService *service.StocksService
+	//FiberAppstruct  *fiber.App
+	ginEngineStruct *gin.Engine
+	Service         *service.Service
+	StocksService   *service.StocksService
 }
 
-func InitializeController(cfg *config.Config, app *fiber.App, db *sqlx.DB) *StockController {
-
-	// 初始化 StockController，并添加 Fiber 中间件
+func InitializeController(cfg *config.Config, _ginEngine *gin.Engine, db *sqlx.DB) *StockController {
 	sc := &StockController{
-		App:           app,
-		Service:       service.NewService(db),
-		StocksService: service.InitStocksService(db),
+		//FiberAppstruct:  _fiberApp,
+		ginEngineStruct: _ginEngine,
+		Service:         service.NewService(db),
+		StocksService:   service.InitStocksService(db),
 	}
 
-	sc.App.Use(logger.New())
-	sc.App.Use(recover.New())
+	// sc.FiberAppstruct.Use(logger.New())
+	// sc.FiberAppstruct.Use(recover.New())
 	sc.setupRoutes()
-
 	return sc
 }
 
 func (sc *StockController) setupRoutes() {
-	sc.App.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World! ----index 20240326")
+	sc.ginEngineStruct.GET("/ping", func(_ginCTX *gin.Context) {
+		_ginCTX.JSON(http.StatusOK, gin.H{"message": "pong"})
+	})
+	sc.ginEngineStruct.GET("/", func(_ginCTX *gin.Context) {
+		_ginCTX.String(http.StatusOK, "Hello, World! ----index 20240326")
 	})
 
-	sc.App.Get("/getSignin", func(c *fiber.Ctx) error {
-		return c.SendString("test signin success")
+	sc.ginEngineStruct.GET("/getSignin", func(_ginCTX *gin.Context) {
+		_ginCTX.String(http.StatusOK, "test signin success")
 	})
 
-	sc.App.Get("/stockMarketOpeningAndClosingDates", sc.GetStockMarketOpeningAndClosingDates)
+	sc.ginEngineStruct.GET("/dailyClosingQuote", sc.dailyClosingQuote)
 
-	sc.App.Get("/dailyClosingQuote", sc.dailyClosingQuote)
+	sc.ginEngineStruct.GET("/theLatestOpeningDate", sc.theLatestOpeningDate)
 
-	sc.App.Get("/theLatestOpeningDate", sc.theLatestOpeningDate)
+	sc.ginEngineStruct.GET("/insert", sc.Insert)
 
-	sc.App.Post("/signup", sc.Signup)
+	// 注册 POST 路由
+	sc.ginEngineStruct.POST("/signup", sc.Signup)
 
-	sc.App.Get("/insert", sc.Insert)
+	sc.ginEngineStruct.GET("/stockMarketOpeningAndClosingDates", sc.GetStockMarketOpeningAndClosingDates)
+
 }
-
-func (sc *StockController) Signup(ctxStruct *fiber.Ctx) error {
-	// 处理注册请求
-	req := new(model.SignupRequest)
-	if err := ctxStruct.BodyParser(req); err != nil {
-		return err
-	}
-
-	if err := sc.Service.SignupService(req); err != nil {
-		return err
-	}
-
-	// 返回响应
-	res := &model.SignupResponse{
-		Email: req.Email,
-		Name:  req.Name,
-	}
-	return ctxStruct.JSON(res)
-}
-
-func (sc *StockController) Insert(c *fiber.Ctx) error {
-	return sc.Service.InsertService()
-}
-
-func (sc *StockController) theLatestOpeningDate(ctx *fiber.Ctx) error {
-	util.PrintLog("Enter GetTheLatestOpeningDate log")
-
-	dates, err := sc.StocksService.GetTheLatestOpeningDate()
-	if err != nil {
-		return err
-	}
-
-	// 构造 JSON 响应
-	response := struct {
-		Dates string `json:"dates"`
-	}{
-		Dates: dates,
-	}
-
-	// 返回 JSON 响应
-	return ctx.JSON(response)
-}
-
-func (sc *StockController) dailyClosingQuote(ctx *fiber.Ctx) error {
-	//util.PrintLog("This is a GetDailyClosingQuote log", true)
-	util.PrintLog("dailyClosingQuote")
-	dailyQuote, err := sc.StocksService.GetDailyClosingQuote()
-	if err != nil {
-		fmt.Println("Error:", err)
-		return err
-	}
-
-	var jsonResponse map[string]interface{}
-	if err := json.Unmarshal(dailyQuote, &jsonResponse); err != nil {
-		fmt.Println("Error decoding JSON:", err)
-		return err
-	}
-
-	return ctx.JSON(jsonResponse)
-}
-func (sc *StockController) GetStockMarketOpeningAndClosingDates(ctx *fiber.Ctx) error {
+func (sc *StockController) GetStockMarketOpeningAndClosingDates(_ginCTX *gin.Context) {
 	util.PrintLog("Enter GetStockMarketOpeningAndClosingDates log")
 
 	dates, err := sc.StocksService.GetStockMarketOpeningAndClosingDates(true)
 	if err != nil {
-		return err
+		_ginCTX.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	response := struct {
@@ -128,5 +72,72 @@ func (sc *StockController) GetStockMarketOpeningAndClosingDates(ctx *fiber.Ctx) 
 	}{
 		Dates: dates,
 	}
-	return ctx.JSON(response)
+	_ginCTX.JSON(http.StatusOK, response)
+}
+
+func (sc *StockController) Signup(_ginCTX *gin.Context) {
+	// 处理注册请求
+	req := new(model.SignupRequest)
+	if err := _ginCTX.BindJSON(req); err != nil {
+		_ginCTX.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := sc.Service.SignupService(req); err != nil {
+		_ginCTX.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 返回响应
+	res := &model.SignupResponse{
+		Email: req.Email,
+		Name:  req.Name,
+	}
+	_ginCTX.JSON(http.StatusOK, res)
+}
+
+func (sc *StockController) Insert(c *gin.Context) {
+	err := sc.Service.InsertService()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Insertion successful"})
+}
+
+func (sc *StockController) theLatestOpeningDate(_ginCTX *gin.Context) {
+	util.PrintLog("Enter GetTheLatestOpeningDate log")
+
+	dates, err := sc.StocksService.GetTheLatestOpeningDate()
+	if err != nil {
+		_ginCTX.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	response := struct {
+		Dates string `json:"dates"`
+	}{
+		Dates: dates,
+	}
+
+	_ginCTX.JSON(http.StatusOK, response)
+
+}
+
+func (sc *StockController) dailyClosingQuote(c *gin.Context) {
+	util.PrintLog("dailyClosingQuote")
+
+	dailyQuote, err := sc.StocksService.GetDailyClosingQuote()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var jsonResponse interface{}
+	if err := json.Unmarshal(dailyQuote, &jsonResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error decoding JSON"})
+		return
+	}
+
+	c.JSON(http.StatusOK, jsonResponse)
 }

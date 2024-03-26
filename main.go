@@ -6,7 +6,7 @@ import (
 	"sample/internal/controller"
 	"sample/internal/util"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -21,10 +21,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	f := fiber.New()
+	ginInstance := gin.Default()
+
+	_ = controller.InitializeController(_config, ginInstance, db)
+
+	if err := ginInstance.Run(":" + _config.PORT); err != nil {
+		panic(err)
+	}
+
+	//log.Fatal(api2.FiberAppstruct.Listen(_config.PORT))
+	//f := fiber.New()
 	//api := http.NewAPI(_config, f, db)
-
-	api2 := controller.InitializeController(_config, f, db)
-
-	log.Fatal(api2.App.Listen(_config.PORT))
+	//log.Fatal(api2.FiberAppstruct.Listen(_config.PORT))
 }

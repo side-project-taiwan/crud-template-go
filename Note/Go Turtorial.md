@@ -4,10 +4,29 @@
 2. go run cmd/main.go
 
 # *identifier
-*是指標的標識符。用於指示變量是指標類型。
-Test1 *controller.Test1ontroller [Test1]表示一個指向 controller.Test1ontroller 型別的指標。
-Test1指標類型不直接存儲資料，是存儲指向資料的記憶體地址。
-Test1 是一個指標指向記憶體地址助於傳遞物件的引用，而不是直接複製物件的值，提高性能並允許對物件進行原地修改。
+Go語言中，*是指標的標識符，不直接存儲資料，是存儲指向資料的記憶體地址。
+*apple 表示指向 [apple] 的指標(pointer) 儲存其他變數的記憶體位址。
+&apple 表示指向 [apple] 的記憶體位址(LIKE 0x0000000C)。
+# template go
+``` go
+func main() {
+    apple := 5
+    fmt.Println("水果籃子中的蘋果數量:", apple)
+    // 定義一個指向 apple 變數的指標變數
+    var pointer *int
+    pointer = &apple // 將 apple 變數的地址賦值給指標變數 pointer
+
+    // 通過指標間接修改水果籃子中的蘋果數量
+    *pointer = 10 // 將指標指向的變數的值修改為 10
+
+    fmt.Println("通過指標修改後的水果籃子中的蘋果數量:", apple)
+}
+```
+
+
+
+
+
 
 
 # go - Public, Private - Upper Case, Lower Case
