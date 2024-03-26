@@ -16,7 +16,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db, err := util.NewDB(_config)
+	db, err := util.NewDB(_config) //
 	if err != nil {
 		log.Fatal(err)
 	}

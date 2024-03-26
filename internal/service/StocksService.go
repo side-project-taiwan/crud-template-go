@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"sample/internal/repository"
 	"time"
@@ -18,6 +19,24 @@ func InitStocksService(db *sqlx.DB) *StocksService {
 	return &StocksService{
 		R: repository.NewRepository(db),
 	}
+}
+func (s *StocksService) GetDailyClosingQuote() ([]byte, error) {
+	apiURL := "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&_=1709118194485"
+	response, err := http.Get(apiURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make HTTP request: %v", err)
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode == http.StatusOK {
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read HTTP response body: %v", err)
+		}
+		return body, nil
+	}
+
+	return nil, fmt.Errorf("HTTP request failed with status: %d", response.StatusCode)
 }
 
 func (s *StocksService) GetStockMarketOpeningAndClosingDates(requestAllData bool) ([]string, error) {

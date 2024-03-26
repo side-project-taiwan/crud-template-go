@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
 	"sample/internal/config"
 	"sample/internal/model"
 	"sample/internal/service"
@@ -36,16 +38,18 @@ func InitializeController(cfg *config.Config, app *fiber.App, db *sqlx.DB) *Stoc
 
 func (sc *StockController) setupRoutes() {
 	sc.App.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World! indextest 20240325")
+		return c.SendString("Hello, World! ----index 20240326")
 	})
 
 	sc.App.Get("/getSignin", func(c *fiber.Ctx) error {
 		return c.SendString("test signin success")
 	})
 
-	sc.App.Get("/getStockMarketOpeningAndClosingDates", sc.GetStockMarketOpeningAndClosingDates)
+	sc.App.Get("/stockMarketOpeningAndClosingDates", sc.GetStockMarketOpeningAndClosingDates)
 
-	sc.App.Get("/GetTheLatestOpeningDate", sc.GetTheLatestOpeningDate)
+	sc.App.Get("/dailyClosingQuote", sc.dailyClosingQuote)
+
+	sc.App.Get("/theLatestOpeningDate", sc.theLatestOpeningDate)
 
 	sc.App.Post("/signup", sc.Signup)
 
@@ -75,8 +79,8 @@ func (sc *StockController) Insert(c *fiber.Ctx) error {
 	return sc.Service.InsertService()
 }
 
-func (sc *StockController) GetTheLatestOpeningDate(ctx *fiber.Ctx) error {
-	util.PrintLog("This is a GetStockMarketOpeningAndClosingDates log", true)
+func (sc *StockController) theLatestOpeningDate(ctx *fiber.Ctx) error {
+	util.PrintLog("Enter GetTheLatestOpeningDate log")
 
 	dates, err := sc.StocksService.GetTheLatestOpeningDate()
 	if err != nil {
@@ -94,21 +98,35 @@ func (sc *StockController) GetTheLatestOpeningDate(ctx *fiber.Ctx) error {
 	return ctx.JSON(response)
 }
 
+func (sc *StockController) dailyClosingQuote(ctx *fiber.Ctx) error {
+	//util.PrintLog("This is a GetDailyClosingQuote log", true)
+	util.PrintLog("dailyClosingQuote")
+	dailyQuote, err := sc.StocksService.GetDailyClosingQuote()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return err
+	}
+
+	var jsonResponse map[string]interface{}
+	if err := json.Unmarshal(dailyQuote, &jsonResponse); err != nil {
+		fmt.Println("Error decoding JSON:", err)
+		return err
+	}
+
+	return ctx.JSON(jsonResponse)
+}
 func (sc *StockController) GetStockMarketOpeningAndClosingDates(ctx *fiber.Ctx) error {
-	util.PrintLog("This is a GetStockMarketOpeningAndClosingDates log", true)
+	util.PrintLog("Enter GetStockMarketOpeningAndClosingDates log")
 
 	dates, err := sc.StocksService.GetStockMarketOpeningAndClosingDates(true)
 	if err != nil {
 		return err
 	}
 
-	// 构造 JSON 响应
 	response := struct {
 		Dates []string `json:"dates"`
 	}{
 		Dates: dates,
 	}
-
-	// 返回 JSON 响应
 	return ctx.JSON(response)
 }
