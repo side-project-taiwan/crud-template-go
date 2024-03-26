@@ -10,3 +10,7 @@ services:
     container_name: golangContainer
     volumes:
       - ./:/app
+    network_mode: bridge
+
+
+
