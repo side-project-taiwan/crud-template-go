@@ -7,19 +7,12 @@ import (
 	"net/http"
 	"sample/internal/repository"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type StocksService struct {
 	R *repository.Repository
 }
 
-func InitStocksService(db *sqlx.DB) *StocksService {
-	return &StocksService{
-		R: repository.NewRepository(db),
-	}
-}
 func (s *StocksService) GetDailyClosingQuote() ([]byte, error) {
 	apiURL := "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&_=1709118194485"
 	response, err := http.Get(apiURL)

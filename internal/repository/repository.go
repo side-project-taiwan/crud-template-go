@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-
 	"sample/internal/model"
 
 	"github.com/jmoiron/sqlx"
