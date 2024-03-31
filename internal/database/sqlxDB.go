@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
-	"sample/internal/configs"
+	"sample/configs"
 	"sample/internal/util"
 
 	"github.com/jmoiron/sqlx"
@@ -14,6 +14,8 @@ var (
 )
 
 func NewDB() (*sqlx.DB, error) {
+	fmt.Println("configs:", configs.DB_TYPE)
+
 	db, err := sqlx.Open(configs.DB_TYPE, configs.DB_URL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
@@ -27,8 +29,8 @@ func NewDB() (*sqlx.DB, error) {
 }
 
 func init() {
+	util.PrintLogWithColor("Enter database_init log")
 	var err error
-	util.PrintLog("Enter database_init log")
 	SQLXDB, err = NewDB()
 	if err != nil {
 		log.Fatal(err)

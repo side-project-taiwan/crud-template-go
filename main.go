@@ -1,16 +1,54 @@
 package main
 
 import (
-	"sample/internal/controller"
-	_ "sample/internal/service"
 
+	//_ "sample/internal/service"
+
+	_ "sample/configs"
+	"sample/internal/controller"
+	"sample/internal/database"
+	"sample/internal/repository"
+	"sample/internal/service"
+	"sample/internal/util"
+
+	//"github.com/jmoiron/sqlx"
+	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
+	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
-//_ "sample/internal/database"
-
 func main() {
+	fx.New(
+		fx.Provide(func() *gin.Engine {
+			gin.SetMode(gin.ReleaseMode)
+			return gin.Default()
+		}),
+		fx.Provide(func() (*gorm.DB, error) {
+			return database.NewGormDB()
+		}),
+		fx.Provide(func(_database *gorm.DB) *repository.RepositoryGorm {
+			return repository.NewRepositoryGorm(_database)
+		}),
 
-	//_ = controller.InitializeController()
-	_ = controller.InitializeController()
+		fx.Provide(func(repository *repository.RepositoryGorm) *service.StocksService {
+			return service.NewStocksService(repository)
+		}),
+
+		fx.Provide(func(repository *repository.RepositoryGorm) *service.UserService {
+			return service.NewUserService(repository)
+		}),
+
+		fx.Invoke(controller.InitializeStockController),
+		fx.Invoke(controller.InitializeUserController),
+
+		fx.Invoke(func(router *gin.Engine) {
+			go func() {
+				util.PrintLogWithColor("Enter router.Run", "#0000ff")
+				if err := router.Run(":8083"); err != nil {
+					panic(err)
+				}
+			}()
+		}),
+	).Run()
 }

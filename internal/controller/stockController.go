@@ -10,28 +10,30 @@ import (
 )
 
 type StockController struct {
-	ginEngineStruct *gin.Engine
-	StocksService   *service.StocksService
+	StocksService *service.StocksService
 }
 
-func InitializeController() *StockController {
+func InitializeStockController(stocksService *service.StocksService, gin_Instance *gin.Engine) *StockController {
+
+	util.PrintLogWithColor("Enter InitializeStockController", "#ff0000")
 	sc := &StockController{
-		StocksService: &service.StocksService{},
+		StocksService: stocksService,
 	}
-	sc.setStockRoutes()
-	//setStockRoutes()
+	sc.setAssignRoutes(gin_Instance)
+	return sc
 }
-func (sc *StockController) setStockRoutes() {
-	util.PrintLog("Enter setupRoutes log")
 
-	gin_Instance := service.GetHttpServiceInstance().Gin_Instance
-	gin_Instance.GET("/ping", func(_ginCTX *gin.Context) {
-		_ginCTX.JSON(http.StatusOK, gin.H{"message": "pong"})
-	})
+func (sc *StockController) setAssignRoutes(gin_Instance *gin.Engine) {
+
+	util.PrintLogWithColor("Enter setAssignRoutes", "#00F500")
+
+	//gin_Instance := gin.Default()
 	gin_Instance.GET("/", func(_ginCTX *gin.Context) {
 		_ginCTX.String(http.StatusOK, "Hello, World! ----index 20240326")
 	})
-
+	gin_Instance.GET("/ping", func(_ginCTX *gin.Context) {
+		_ginCTX.JSON(http.StatusOK, gin.H{"message": "pong"})
+	})
 	gin_Instance.GET("/getSignin", func(_ginCTX *gin.Context) {
 		_ginCTX.String(http.StatusOK, "test signin success")
 	})
@@ -45,8 +47,6 @@ func (sc *StockController) setStockRoutes() {
 }
 
 func (sc *StockController) GetStockMarketOpeningAndClosingDates(_ginCTX *gin.Context) {
-	util.PrintLog("Enter GetStockMarketOpeningAndClosingDates log")
-
 	dates, err := sc.StocksService.GetStockMarketOpeningAndClosingDates(true)
 	if err != nil {
 		_ginCTX.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -62,7 +62,7 @@ func (sc *StockController) GetStockMarketOpeningAndClosingDates(_ginCTX *gin.Con
 }
 
 func (sc *StockController) theLatestOpeningDate(_ginCTX *gin.Context) {
-	util.PrintLog("Enter GetTheLatestOpeningDate log")
+	util.PrintLogWithColor("Enter GetTheLatestOpeningDate log")
 
 	dates, err := sc.StocksService.GetTheLatestOpeningDate()
 	if err != nil {
@@ -81,8 +81,6 @@ func (sc *StockController) theLatestOpeningDate(_ginCTX *gin.Context) {
 }
 
 func (sc *StockController) dailyClosingQuote(c *gin.Context) {
-	util.PrintLog("dailyClosingQuote")
-
 	dailyQuote, err := sc.StocksService.GetDailyClosingQuote()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

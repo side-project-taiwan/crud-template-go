@@ -12,24 +12,24 @@ import (
 	"time"
 )
 
-type StocksService struct {
-	structInterface i_StockRepository
+type UserService struct {
+	structInterface i_UserRepository
 }
 
-type i_StockRepository interface {
+type i_UserRepository interface {
 	Signup(data *model.SignupRequest) error
 }
 
-func NewStocksService(varName i_StockRepository) *StocksService {
-	util.PrintLogWithColor("Enter stockService", "#ff00ff")
+func NewUserService(varName i_UserRepository) *UserService {
+	util.PrintLogWithColor("Enter stockService", "#00ffff")
 
-	callBack := StocksService{
+	callBack := UserService{
 		structInterface: varName,
 	}
 	return &callBack
 }
 
-func (s *StocksService) GetDailyClosingQuote() ([]byte, error) {
+func (s *UserService) GetDailyClosingQuote() ([]byte, error) {
 	apiURL := "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&_=1709118194485"
 	response, err := http.Get(apiURL)
 	if err != nil {
@@ -48,7 +48,7 @@ func (s *StocksService) GetDailyClosingQuote() ([]byte, error) {
 	return nil, fmt.Errorf("HTTP request failed with status: %d", response.StatusCode)
 }
 
-func (s *StocksService) GetStockMarketOpeningAndClosingDates(requestAllData bool) ([]string, error) {
+func (s *UserService) GetStockMarketOpeningAndClosingDates(requestAllData bool) ([]string, error) {
 
 	type HolidayScheduleResponse struct {
 		Data [][]string `json:"data"`
@@ -79,7 +79,7 @@ func (s *StocksService) GetStockMarketOpeningAndClosingDates(requestAllData bool
 	return dates, nil
 }
 
-func (s *StocksService) GetTheLatestOpeningDate() (string, error) {
+func (s *UserService) GetTheLatestOpeningDate() (string, error) {
 	responseClosingDates, err := s.GetStockMarketOpeningAndClosingDates(false)
 	if err != nil {
 		return "", err

@@ -1,6 +1,9 @@
 package configs
 
-import "os"
+import (
+	"os"
+	"sample/internal/util"
+)
 
 var (
 	DB_TYPE string
@@ -9,6 +12,8 @@ var (
 )
 
 func init() {
+	util.PrintLogWithColor("Enter configsInit log=>"+os.Getenv("DB_URL"), "#00ffff")
+
 	DB_TYPE = os.Getenv("DB_TYPE")
 	DB_URL = os.Getenv("DB_URL")
 	PORT = os.Getenv("PORT")

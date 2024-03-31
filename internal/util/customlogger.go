@@ -26,13 +26,18 @@ func ConvertHexToColor(hexColor string) string {
 	// 根据颜色分量生成 ANSI 转义码
 	return fmt.Sprintf("\033[38;2;%d;%d;%dm", r, g, b)
 }
-func PrintLog(message string) {
-	if closeLog {
-		// 输入的十六进制颜色值
-		hexColor := "#00FF00" // Lime Green
 
-		// 将十六进制颜色值转换为 ANSI 转义码
-		colorCode := ConvertHexToColor(hexColor)
+var defaultHexColor = "#00FF00" // 默认的十六进制颜色值
+
+func PrintLogWithColor(message string, hexColor ...string) {
+
+	if closeLog {
+		_hexColor := defaultHexColor
+		if len(hexColor) > 0 {
+			_hexColor = hexColor[0]
+		}
+
+		colorCode := ConvertHexToColor(_hexColor)
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
 		// 在终端中输出彩色文本
 		//+ message
