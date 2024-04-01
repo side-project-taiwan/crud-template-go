@@ -11,3 +11,8 @@
 - air -c .air.toml
 
 
+
+
+
+# gentool Cli
+gentool -c "./gen.yaml"
