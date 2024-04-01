@@ -2,7 +2,7 @@ package repository
 
 import (
 	"fmt"
-	"sample/internal/model"
+	"sample/internal/repository/model"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -17,7 +17,7 @@ func NewRepository(db *sqlx.DB) *Repository {
 	}
 }
 
-func (r *Repository) SignupRepository(data *model.SignupRequest) error {
+func (r *Repository) SignupRepository(data *model.User) error {
 	query := fmt.Sprintf("INSERT INTO users(name, email, password) VALUES('%s','%s','%s')",
 		data.Name,
 		data.Email,

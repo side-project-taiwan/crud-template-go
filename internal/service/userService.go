@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	//"sample/internal/repository"
-	"sample/internal/model"
+	"sample/internal/repository/model"
 	"sample/internal/util"
 	"time"
 )
@@ -17,7 +15,7 @@ type UserService struct {
 }
 
 type i_UserRepository interface {
-	Signup(data *model.SignupRequest) error
+	Signup(data *model.User) error
 }
 
 func NewUserService(varName i_UserRepository) *UserService {

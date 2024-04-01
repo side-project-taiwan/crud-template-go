@@ -7,7 +7,7 @@ database:
   # enter the required data table or leave it blank.You can input : orders,users,goods
   tables: ["users","user_detail"]
   # specify a directory for output
-  outPath: "./internal/model"
+  outPath: "./internal/repository/dataAccessObject"
   # query code file name, default: gen.go
   outFile :  ""
   # generate unit test for query code

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"sample/internal/model"
+	"sample/internal/repository/model"
 
 	"gorm.io/gorm"
 )
@@ -16,7 +16,7 @@ func NewRepositoryGorm(_database *gorm.DB) *RepositoryGorm {
 	}
 }
 
-func (r *RepositoryGorm) Signup(data *model.SignupRequest) error {
+func (r *RepositoryGorm) Signup(data *model.User) error {
 
 	return nil
 }

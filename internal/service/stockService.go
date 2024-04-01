@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	//"sample/internal/repository"
-	"sample/internal/model"
+	"sample/internal/repository/model"
 	"sample/internal/util"
 	"time"
 )
@@ -17,7 +15,7 @@ type StocksService struct {
 }
 
 type i_StockRepository interface {
-	Signup(data *model.SignupRequest) error
+	Signup(data *model.User) error
 }
 
 func NewStocksService(varName i_StockRepository) *StocksService {
