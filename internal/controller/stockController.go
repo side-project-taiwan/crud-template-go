@@ -63,21 +63,12 @@ func (sc *StockController) GetStockMarketOpeningAndClosingDates(_ginCTX *gin.Con
 
 func (sc *StockController) theLatestOpeningDate(_ginCTX *gin.Context) {
 	util.PrintLogWithColor("Enter GetTheLatestOpeningDate log")
-
 	dates, err := sc.StocksService.GetTheLatestOpeningDate()
 	if err != nil {
 		_ginCTX.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	response := struct {
-		Dates string `json:"dates"`
-	}{
-		Dates: dates,
-	}
-
-	_ginCTX.JSON(http.StatusOK, response)
-
+	_ginCTX.JSON(http.StatusOK, gin.H{"dates": dates})
 }
 
 func (sc *StockController) dailyClosingQuote(c *gin.Context) {

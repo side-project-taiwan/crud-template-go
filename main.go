@@ -27,19 +27,20 @@ func main() {
 		fx.Provide(func() (*gorm.DB, error) {
 			return database.NewGormDB()
 		}),
-		fx.Provide(func(_database *gorm.DB) *repository.RepositoryGorm {
+		fx.Provide(func(_database *gorm.DB) *repository.StockRepositoryGorm {
 			return repository.NewRepositoryGorm(_database)
 		}),
-
-		fx.Provide(func(repository *repository.RepositoryGorm) *service.StocksService {
+		fx.Provide(func(repository *repository.StockRepositoryGorm) *service.StocksService {
 			return service.NewStocksService(repository)
 		}),
+		fx.Invoke(controller.InitializeStockController),
 
-		fx.Provide(func(repository *repository.RepositoryGorm) *service.UserService {
+		fx.Provide(func(_database *gorm.DB) *repository.UserRepositoryGorm {
+			return repository.NewUserRepositoryGorm(_database)
+		}),
+		fx.Provide(func(repository *repository.UserRepositoryGorm) *service.UserService {
 			return service.NewUserService(repository)
 		}),
-
-		fx.Invoke(controller.InitializeStockController),
 		fx.Invoke(controller.InitializeUserController),
 
 		fx.Invoke(func(router *gin.Engine) {

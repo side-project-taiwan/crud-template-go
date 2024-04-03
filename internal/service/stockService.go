@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sample/internal/repository/model"
 	"sample/internal/util"
 	"time"
 )
@@ -15,14 +14,13 @@ type StocksService struct {
 }
 
 type i_StockRepository interface {
-	Signup(data *model.User) error
 }
 
-func NewStocksService(varName i_StockRepository) *StocksService {
+func NewStocksService(stockRepo i_StockRepository) *StocksService {
 	util.PrintLogWithColor("Enter stockService", "#ff00ff")
 
 	callBack := StocksService{
-		structInterface: varName,
+		structInterface: stockRepo,
 	}
 	return &callBack
 }
