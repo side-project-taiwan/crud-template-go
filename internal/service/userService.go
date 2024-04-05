@@ -4,7 +4,6 @@ import (
 	"sample/internal/repository/model"
 	"sample/internal/util"
 	"strconv"
-	"time"
 )
 
 type UserService struct {
@@ -24,18 +23,20 @@ func NewUserService(userRepo i_UserRepository) *UserService {
 	return &callBack
 }
 
-func (_target *UserService) CreateNewUser() (string, error) {
-	user := &model.User{
-		UserID:    1,
-		Account:   "example_account",
-		Username:  "example_username",
-		Password:  "example_password",
-		Email:     "example@example.com",
-		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		// You may want to handle CreatedAt and UpdatedAt fields appropriately
-	}
-	newUser, err := _target.structRepository.CreateNewUser(user)
+func (_target *UserService) CreateNewUser(newUser *model.User) (string, error) {
+	// randomNum := rand.Intn(10000)
+	// randomNumStr := strconv.Itoa(randomNum)
+
+	// user := &model.User{
+	// 	//UserID:    1,
+	// 	Account:   "example_account" + randomNumStr,
+	// 	Username:  "example_username",
+	// 	Password:  "example_password",
+	// 	Email:     "example@example.com",
+	// 	CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
+	// 	UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
+	// }
+	newUser, err := _target.structRepository.CreateNewUser(newUser)
 	if err != nil {
 		return "", err
 	}

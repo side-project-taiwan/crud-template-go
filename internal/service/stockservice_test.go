@@ -4,13 +4,17 @@ import (
 	"testing"
 	//"sample/internal/service"
 
+	//"sample/internal/database"
+	//"sample/internal/repository"
 	"sample/internal/util"
 )
 
 func Test_Stock(t *testing.T) {
 	util.PrintLogWithColor("Enter HttpService")
 
-	// aaaStocksService := NewStocksService(repository.NewRepositoryGorm(nil))
+	//testDatabasee := database.NewGormDB()
+
+	//testNewStocksService := NewStocksService(repository.NewUserRepositoryGorm(nil))
 	// err := aaaStocksService.R.SignupRepositoryGorm(nil)
 	// assert.Equal(t, nil, err)
 }
