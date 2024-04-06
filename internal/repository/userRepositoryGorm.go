@@ -15,13 +15,16 @@ func NewUserRepositoryGorm(_database *gorm.DB) *UserRepositoryGorm {
 		Database: _database,
 	}
 }
-
-func (r *UserRepositoryGorm) CreateNewUser(user *model.User) (*model.User, error) {
+func (r *UserRepositoryGorm) CreateNewUser(user *model.User) (int32, error) {
 	result := r.Database.Create(user)
 	if result.Error != nil {
-		return nil, result.Error
+		return 0, result.Error
 	}
-	return user, nil
+
+	// 獲取創建後的 ID
+	userID := user.UserID
+
+	return userID, nil
 }
 
 // func (r *UserRepositoryGorm) GetUserByID(userID int32) (*model.User, error) {

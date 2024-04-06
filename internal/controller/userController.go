@@ -2,10 +2,8 @@ package controller
 
 import (
 	"net/http"
-	"sample/internal/repository/model"
 	"sample/internal/service"
 	"sample/internal/util"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,16 +35,8 @@ func (_target *UserController) setAssignRoutes(gin_Instance *gin.Engine) {
 			_ginCTX.String(http.StatusBadRequest, "Invalid request data")
 			return
 		}
-		newUserData := &model.User{
-			Account:   userInput.Account,
-			Username:  userInput.Username,
-			Password:  userInput.Password,
-			Email:     userInput.Email,
-			CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
-			UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		}
 
-		newUserID, err := _target.UserService.CreateNewUser(newUserData)
+		newUserID, err := _target.UserService.CreateNewUser(userInput)
 		if err != nil {
 			_ginCTX.String(http.StatusInternalServerError, "Error creating new user")
 			return
