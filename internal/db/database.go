@@ -1,13 +1,13 @@
-package database
+package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"gorm.io/gorm/schema"
 	"log"
-	"os"
+	"spt/config"
 	"strconv"
+	"sync"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -21,53 +21,55 @@ type Service interface {
 }
 
 type service struct {
-	db    *gorm.DB
-	sqlDB *sql.DB // To access the underlying *sql.DB for stats
+	db *gorm.DB
 }
 
 var (
-	dbname     = os.Getenv("DB_DATABASE")
-	password   = os.Getenv("DB_PASSWORD")
-	username   = os.Getenv("DB_USERNAME")
-	port       = os.Getenv("DB_PORT")
-	host       = os.Getenv("DB_HOST")
 	dbInstance *service
+	once       sync.Once
 )
 
-func New() Service {
-	// Reuse Connection
-	if dbInstance != nil {
-		return dbInstance
-	}
+func Instance() Service {
+	once.Do(func() {
+		// Load database configuration
+		dbConfig := config.LoadDBConfig()
 
-	// DSN (Data Source Name) format for MySQL
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port, dbname)
+		// DSN (Data Source Name) from the config
+		dsn := dbConfig.DSN()
 
-	// Initialize GORM DB connection
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true,
-		},
+		// Initialize GORM DB connection
+		db, err := gorm.Open(mysql.New(mysql.Config{
+			DSN:                       dsn,   // DSN data source name
+			DefaultStringSize:         256,   // default size for string fields
+			DisableDatetimePrecision:  true,  // disable datetime precision, which not supported before MySQL 5.6
+			DontSupportRenameIndex:    true,  // drop & create when rename index, rename index not supported before MySQL 5.7, MariaDB
+			DontSupportRenameColumn:   true,  // use change when rename column, rename column not supported before MySQL 8, MariaDB
+			SkipInitializeWithVersion: false, // autoconfigure based on currently MySQL version
+		}), &gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true,
+			},
+		})
+
+		if err != nil {
+			log.Fatal("failed to connect to database: ", err)
+		}
+
+		// Get the underlying sql.DB to access its stats
+		sqlDB, err := db.DB()
+		if err != nil {
+			log.Fatal("failed to get underlying sql.DB: ", err)
+		}
+
+		// Set connection pool settings
+		sqlDB.SetConnMaxLifetime(0)
+		sqlDB.SetMaxIdleConns(50)
+		sqlDB.SetMaxOpenConns(50)
+
+		dbInstance = &service{
+			db: db,
+		}
 	})
-	if err != nil {
-		log.Fatal("failed to connect to database: ", err)
-	}
-
-	// Get the underlying sql.DB to access its stats
-	sqlDB, err := db.DB()
-	if err != nil {
-		log.Fatal("failed to get underlying sql.DB: ", err)
-	}
-
-	// Set connection pool settings
-	sqlDB.SetConnMaxLifetime(0)
-	sqlDB.SetMaxIdleConns(50)
-	sqlDB.SetMaxOpenConns(50)
-
-	dbInstance = &service{
-		db:    db,
-		sqlDB: sqlDB,
-	}
 	return dbInstance
 }
 
@@ -78,8 +80,16 @@ func (s *service) Health() map[string]string {
 
 	stats := make(map[string]string)
 
+	sqlDB, err := s.db.DB()
+	if err != nil {
+		stats["status"] = "down"
+		stats["error"] = fmt.Sprintf("db down: %v", err)
+		log.Fatalf("db down: %v", err)
+		return stats
+	}
+
 	// Ping the database
-	err := s.sqlDB.PingContext(ctx)
+	err = sqlDB.PingContext(ctx)
 	if err != nil {
 		stats["status"] = "down"
 		stats["error"] = fmt.Sprintf("db down: %v", err)
@@ -92,7 +102,7 @@ func (s *service) Health() map[string]string {
 	stats["message"] = "It's healthy"
 
 	// Get database stats (like open connections, in use, idle, etc.)
-	dbStats := s.sqlDB.Stats()
+	dbStats := sqlDB.Stats()
 	stats["open_connections"] = strconv.Itoa(dbStats.OpenConnections)
 	stats["in_use"] = strconv.Itoa(dbStats.InUse)
 	stats["idle"] = strconv.Itoa(dbStats.Idle)
@@ -120,7 +130,8 @@ func (s *service) Health() map[string]string {
 	return stats
 }
 
-//// Close closes the database connection.
+// Close closes the database connection.
+// Note: GORM automatically manages the connection pool, so explicit closing is not required.
 //func (s *service) Close() error {
 //	log.Printf("Disconnected from database: %s", dbname)
 //	return s.sqlDB.Close()

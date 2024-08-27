@@ -1,6 +1,12 @@
 
-# Live Reload
+# Build the Go project
+build:
+	@echo "Building..."
+	@swag init -g ./cmd/web/main.go
+	@go build -o main cmd/web/main.go
 
+
+# Live Reload
 watch:
 	@if command -v air > /dev/null; then \
             air; \
