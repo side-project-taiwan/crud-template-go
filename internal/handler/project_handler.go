@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"spt/internal/usecase"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ProjectHandler interface {
@@ -30,10 +31,15 @@ func NewProjectHandler(usecase usecase.ProjectUsecase) ProjectHandler {
 // @Router      /projects [get]
 func (h *projectHandler) GetProjectList(c *gin.Context) {
 	g := Gin{c}
-	err := h.usecase.ListProjects()
+	//err := h.usecase.ListProjects()
+	data, err := h.usecase.GetProjectList()
 	if err != nil {
-		g.Response(http.StatusOK, http.StatusInternalServerError, "", err.Error())
+		g.Response(http.StatusInternalServerError, http.StatusInternalServerError, "", err.Error())
 		return
 	}
-	g.Response(http.StatusOK, http.StatusOK, "Get project list successfully", nil)
+	fakeData := map[string]interface{}{
+		"items": []string{"testdata", ""},
+	}
+	fakeData["db_datas"] = data
+	g.Response(http.StatusOK, http.StatusOK, "Get project list successfully", fakeData)
 }

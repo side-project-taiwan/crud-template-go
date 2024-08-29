@@ -3,12 +3,13 @@ package db
 import (
 	"context"
 	"fmt"
-	"gorm.io/gorm/schema"
 	"log"
 	"spt/config"
 	"strconv"
 	"sync"
 	"time"
+
+	"gorm.io/gorm/schema"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -17,6 +18,7 @@ import (
 // Service represents a service that interacts with a database.
 type Service interface {
 	Health() map[string]string
+	GetDB() *gorm.DB
 	//Close() error
 }
 
@@ -128,6 +130,9 @@ func (s *service) Health() map[string]string {
 	}
 
 	return stats
+}
+func (s *service) GetDB() *gorm.DB {
+	return s.db
 }
 
 // Close closes the database connection.
