@@ -1,4 +1,4 @@
-package routers
+package router
 
 import (
 	"github.com/gin-contrib/cors"
@@ -9,17 +9,8 @@ import (
 
 // InitRouter initializes the Gin engine with necessary middleware and routes.
 func InitRouter() *gin.Engine {
-	// setup gin
-	r := setupGin()
 
-	// setup routes
-	setupRoutes(r)
-
-	return r
-}
-
-// setupGin configures the Gin engine with necessary middleware.
-func setupGin() *gin.Engine {
+	// setupGin configures the Gin engine with necessary middleware.
 	gin.SetMode(os.Getenv("RUN_MODE"))
 	gin.ForceConsoleColor()
 	r := gin.New()
@@ -32,14 +23,12 @@ func setupGin() *gin.Engine {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-	return r
-}
 
-func setupRoutes(r *gin.Engine) {
 	// Create a new route group for API version 1
 	rg := r.Group("/api/v1")
 	{
 		// Register project-related routes
 		RegisterProjectRoutes(rg)
 	}
+	return r
 }

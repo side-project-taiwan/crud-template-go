@@ -7,13 +7,14 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+	"os"
 	"spt/docs"
 	"spt/internal/db"
-	"spt/internal/routers"
-	sptLog "spt/log"
+	"spt/internal/router"
+	sptLog "spt/internal/util"
 )
 
-// @host     127.0.0.1:8002
+// @host     127.0.0.1:{{.Port}}
 // @BasePath /api/v1
 func main() {
 
@@ -31,20 +32,18 @@ func main() {
 	// Create a Gin router
 	router := SetupRouter(dbService)
 
-	// Define a route to check the database health
-
-	// Start the server on port 8080
-	router.Run(":8080")
+	// Start the server on PORT
+	router.Run(":" + os.Getenv("PORT"))
 }
 
 func SetupRouter(dbService db.Service) *gin.Engine {
 	log.Infoln("SetupRouter()...")
-	router := routers.InitRouter()
+	router := router.InitRouter()
 	// Set up swagger info
 	docs.SwaggerInfo.Title = "spt API"
 	docs.SwaggerInfo.Description = "This is spt api server."
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:8002"
+	docs.SwaggerInfo.Host = "localhost:" + os.Getenv("PORT")
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
