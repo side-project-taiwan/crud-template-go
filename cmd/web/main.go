@@ -1,30 +1,38 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	log "github.com/sirupsen/logrus"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"fmt"
 	"net/http"
 	"os"
 	"spt/docs"
 	"spt/internal/db"
 	"spt/internal/router"
-	sptLog "spt/internal/util"
+	"spt/internal/utility"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // @host     127.0.0.1:{{.Port}}
 // @BasePath /api/v1
 func main() {
-
-	// Load .env file
-	err := godotenv.Load()
+	rootDir, envPath, err := utility.GetProjectRootDirAndEnvPath()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Println("Project root directory:", rootDir)
+	fmt.Println("Environment file path:", envPath)
+	err = godotenv.Load(envPath)
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
 	// Setup log
-	sptLog.SetupLog()
+	utility.SetupLog()
 
 	// Create a database service instance
 	dbService := db.Instance()
