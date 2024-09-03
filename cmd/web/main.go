@@ -47,7 +47,7 @@ func main() {
 func SetupRouter(dbService db.Service) *gin.Engine {
 	log.Infoln("SetupRouter()...")
 	router := router.InitRouter()
-	// Set up swagger info
+	//Set up swagger info
 	docs.SwaggerInfo.Title = "spt API"
 	docs.SwaggerInfo.Description = "This is spt api server."
 	docs.SwaggerInfo.Version = "1.0"
