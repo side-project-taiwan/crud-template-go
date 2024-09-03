@@ -32,14 +32,20 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	dsn := os.Getenv("GORM_GEN_CONNECTION")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbDatabase := os.Getenv("DB_DATABASE")
+	dbUsername := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		dbUsername, dbPassword, dbHost, dbPort, dbDatabase)
 	gormdb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 	g.UseDB(gormdb)
 
-	g.ApplyBasic(g.GenerateModel("project")) //你自己想產的表
+	g.ApplyBasic(g.GenerateModel("event")) //你自己想產的表
 
 	g.Execute()
 }
