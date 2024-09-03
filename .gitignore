@@ -27,3 +27,5 @@ docs/
 
 # Environment variables
 .env
+
+main
